@@ -35,7 +35,7 @@ router.get('/checklogin', async (req, res) => {
     res.status(401).json({message: 'unathenticated user'})
   }
 
-  res.status(200).json({ message: 'Successfully signed in' });  
+  res.status(200).json({ message: 'Successfully signed in', data: claims });  
   } catch (error) {
     res.status(401).json({message: 'unathenticated user'}) 
   }
@@ -43,17 +43,18 @@ router.get('/checklogin', async (req, res) => {
 
 router.post('/login', async function(req, res, next) {
   const { email, password } = req.body
-  const [status, user] = await findUser(email, password)
+  const [status, user, message] = await findUser(email, password)
 
   const token = jwt.sign({_id: user._id}, 'secret')
-  console.log(token );
   res.cookie('jwt', token, {
     httpOnly: true,
     maxAge: 60 * 60 * 1000 // 3mins,
-
   })
-  // const {password : {}, ...data} = user.toJSON()
-  res.json({ user });
+  if(status) {
+    res.status(200).json({ user, message });
+  } else {
+    res.status(400).json({ user, message });
+  }
 });
 
 router.post('/logout', (req, res) => {

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const { scheduleSchema } = require('./scheduleSchema')
 
 //connecting to mongoose server
 mongoose.connect("mongodb://localhost:27017/roaster-app", {useNewUrlParser: true, useUnifiedTopology: true});
@@ -25,8 +26,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'User'
   },
-
+  shifts: {
+    type: [ scheduleSchema ],    
+  },
 })
+// shifts: [ Schedule ]
 
 const User = mongoose.model("User", userSchema)
 
