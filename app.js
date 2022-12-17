@@ -1,19 +1,20 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
 const session = require("express-session")
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const mongoose = require("mongoose")
 const MongoStore = require("connect-mongo")
 const flash = require("connect-flash")
 const cors = require('cors')
 
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const requestsRouter = require('./routes/requests');
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -66,6 +67,7 @@ async function main() {
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/requests', requestsRouter);
 
 
 // catch 404 and forward to error handler

@@ -23,7 +23,7 @@ const generatePassword = () => {
 const generateShifts = (users) => {
     let userstoReturn = users
     let randomUserShift = users[0].shifts
-    let dateObj = randomUserShift[randomUserShift.length - 1] && randomUserShift[randomUserShift.length - 1].date || new Date()
+    let dateObj = randomUserShift[randomUserShift.length - 1] && randomUserShift[randomUserShift.length - 1].date || new Date(moment().startOf('week'))
     const template0 = [ 'M', 'N', 'O', 'N', 'O', 'M', "M" ]
     const template1 = [ 'M', 'N', 'O', 'M', 'O', 'M', "M" ]
     let startIdx = randomUserShift && randomUserShift.length && 1 || 0
