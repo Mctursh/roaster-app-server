@@ -6,6 +6,7 @@ const {
   getAllUserRequests,
   updateRequest,
 } = require("../helpers/requestSeeder");
+const { Notification } = require("../models/notificationModel");
 const { User } = require("../models/userModel");
 const router = express.Router();
 
@@ -80,6 +81,14 @@ router.patch("/update-request/:id", async (req, res) => {
           await handlePromise(
             User.findByIdAndUpdate(payload.requestUser, requestUser)
           );
+          let notificationData = {
+            userId: payload.requestUser,
+            message: `Your request for off Day on ${new Date(
+              payload.date
+            ).toDateString()} has been Approved`,
+            active: true,
+          };
+          await handlePromise(Notification.create(notificationData));
           res.status(200).json({ message: "Successfully updated Shift" });
         } catch (error) {
           res.status(500).json({ message: "Failed to update Shift" });
@@ -119,14 +128,36 @@ router.patch("/update-request/:id", async (req, res) => {
           await handlePromise(
             User.findByIdAndUpdate(payload.requestUser, requestUser)
           );
+          //create notification
+          let notificationData = {
+            userId: payload.requestUser,
+            message: `Your request for shift swap with ${
+              payload.targetUserData.firstName
+            } ${payload.targetUserData.lastName} on ${new Date(
+              payload.date
+            ).toDateString()} has been Approved`,
+            active: true,
+          };
+          await handlePromise(Notification.create(notificationData));
           res.status(200).json({ message: "Successfully updated Shift" });
         } catch (error) {
           res.status(500).json({ message: "Failed to update Shift" });
         }
         break;
     }
-
-    // const [requestsStatus, requestsUser] = await handlePromise(User.findById(payload.requestUser))
+  } else {
+    //create notification
+    let notificationData = {
+      userId: payload.requestUser,
+      message: `Your request for shift swap with ${
+        payload.targetUserData.firstName
+      } ${payload.targetUserData.lastName} on ${new Date(
+        payload.date
+      ).toDateString()} has been DENIED`,
+      active: true,
+    };
+    await handlePromise(Notification.create(notificationData));
+    res.status(200).json({ message: "Successfully updated Shift" });
   }
 });
 module.exports = router;
