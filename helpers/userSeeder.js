@@ -39,9 +39,10 @@ const createAdmin = async () => {
     lastName = "emof",
     email = "princewill@emof.ubth.edu.ng",
     password = "$wyM0Hm8",
-    role = "Admin";
+    role = "Admin",
+    type = "Senior registrar";
 
-  return await createUser(firstName, lastName, email, password, role);
+  return await createUser(firstName, lastName, email, password, type, role);
 };
 
 const findUser = async (email, passWord) => {
