@@ -37,7 +37,7 @@ const createUser = async (
 const createAdmin = async () => {
   const firstName = "princewill",
     lastName = "emof",
-    email = "princewill@emof.ubth.edu.ng",
+    email = "princewill@ubth.edu.ng",
     password = "$wyM0Hm8",
     role = "Admin",
     type = "Senior registrar";
