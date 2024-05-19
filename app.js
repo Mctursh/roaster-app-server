@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 const corsOption = {
-  origin:'http://localhost:8080', 
+  origin:['http://localhost:8080', 'https://roaster-app-server.onrender.com'], 
   credentials:true,
   exposedHeaders: [ 'set-cookie' ]          
 }
