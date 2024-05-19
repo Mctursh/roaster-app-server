@@ -3,24 +3,6 @@ const { findUser } = require("../helpers/userSeeder");
 const jwt = require("jsonwebtoken");
 var router = express.Router();
 
-const isLoggedin = async (req, res) => {
-  try {
-    const cookies = req.cookies["jwt"];
-    const claims = jwt.verify(cookies, "secret");
-
-    console.log(claims);
-
-    if (!claims) {
-      //unauthenticated
-      res.status(401).json({ message: "unathenticated user" });
-    }
-
-    res.status(200).json({ message: "Successfully signed in" });
-  } catch (error) {
-    res.status(401).json({ message: "unathenticated user" });
-  }
-};
-
 /* GET home page. */
 router.get("/checklogin", async (req, res) => {
   try {
@@ -51,7 +33,7 @@ router.post("/login", async function (req, res, next) {
     });
     res.status(200).json({ user, message });
   } else {
-    res.status(400).json({ user, message });
+    res.status(404).json({ user, message });
   }
 });
 

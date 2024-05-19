@@ -20,30 +20,58 @@ const generatePassword = () => {
     return pass;
 }
 
-const generateShifts = (users) => {
+const generateShifts = async (users) => {
     let userstoReturn = users
-    let randomUserShift = users[0].shifts
-    let dateObj = randomUserShift[randomUserShift.length - 1] && randomUserShift[randomUserShift.length - 1].date || new Date(moment().startOf('week'))
-    const template0 = [ 'M', 'N', 'O', 'N', 'O', 'M', "M" ]
-    const template1 = [ 'M', 'N', 'O', 'M', 'O', 'M', "M" ]
-    let startIdx = randomUserShift && randomUserShift.length && 1 || 0
-    let endIdx = randomUserShift && randomUserShift.length && 8 || 7
-    userstoReturn.forEach(user => {
-        let chosenIdx = []
-        for (let i = startIdx; i < endIdx; i++) {
-        const date = new moment(dateObj).add(i, 'day').toString()
-        const templateToUse = Math.round(Math.random())
-        let shiftIdx = Math.round(Math.random() * 6)
-        while (chosenIdx.includes(shiftIdx)) {
-            shiftIdx = Math.round(Math.random() * 6)
+    try {
+        for (let k = 0; k < userstoReturn.length; k++) {
+            const userShifts = userstoReturn[k].shifts
+            console.log(userShifts);
+            if (userShifts.length > 0) {
+                const lastShiftDay = userShifts[userShifts.length - 1].date
+                let dateObj = moment(lastShiftDay).startOf('week').add(7, 'days')
+                const template = [ 'M', 'N', 'M', 'N', 'O', 'M', "M" ]
+                const selectedShiftIndex = []
+                for (let i = 0; i < 7; i++) {
+                    let shiftIdx = Math.round(Math.random() * 6)
+                    const date = moment(dateObj).add(i, 'day').toString()
+                    while (selectedShiftIndex.includes(shiftIdx)) {
+                        shiftIdx = Math.round(Math.random() * 6)
+                    }
+                    selectedShiftIndex.push(shiftIdx)
+                    let shift = `${template[shiftIdx]}`
+                    let shiftData = {
+                        date,
+                        shift
+                    }
+                    userstoReturn[k].shifts = [...userstoReturn[k].shifts, shiftData]
+                }
+            } else {
+                let dateObj = moment().startOf('week')
+                const template = [ 'M', 'N', 'M', 'N', 'O', 'M', "M" ]
+                let selectedShiftIndex = []
+                for (let j = 0; j < 7; j++) {
+                    //generate a random number btw 0 and 6
+                    let shiftIdx = Math.round(Math.random() * 6) 
+                    const date = moment(dateObj).add(j, 'day').format()
+                    
+                    // repeats until it finds a unique index that hasn't already been choosen
+                    while (selectedShiftIndex.includes(shiftIdx)) {
+                        shiftIdx = Math.round(Math.random() * 6)
+                    }
+                    selectedShiftIndex.push(shiftIdx)
+                    let shift = `${template[shiftIdx]}`
+                    let shiftData = {
+                        date,
+                        shift
+                    }
+                    // userstoReturn[k].shifts.push(shiftData)
+                    userstoReturn[k].shifts = [...userstoReturn[k].shifts, shiftData]
+                }
+            }
         }
-        const shift = eval(`template${templateToUse}`)[shiftIdx]
-        user.shifts.push({date, shift: shift})
-        chosenIdx.push(shiftIdx)
-        }
-        chosenIdx = []
-    })
-
+    } catch (error) {
+        console.log(error);
+    }
     return userstoReturn
 } 
 

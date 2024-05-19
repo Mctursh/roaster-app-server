@@ -17,15 +17,16 @@ const createUser = async (
     password,
     type,
     role,
+    shifts: []
   };
   const [_, foundData] = await handlePromise(User.find({ email }));
   if (foundData.length) {
     return [false, {}, "User with the details already exist"];
   } else {
+    await generateShifts([newUser]);
     const [createUserStatus, userStatusData] = await handlePromise(
       User.create(newUser)
     );
-    console.log(userStatusData);
     if (createUserStatus) {
       return [createUserStatus, userStatusData, `Successfully created ${role}`];
     } else {
@@ -47,20 +48,20 @@ const createAdmin = async () => {
 
 const findUser = async (email, passWord) => {
   const [status, data] = await handlePromise(User.findOne({ email }).lean());
-  const { password, ...userData } = data;
-  console.log(password);
-  console.log(passWord);
-  if (status && passWord === password) {
+  if (!status) return [false, data, "Internal server error"];
+  if (!data) return [false, {} , "User not found"];
+  const { password: dbPassword, ...userData } = data;
+  if (passWord === dbPassword) {
     return [true, userData, "Successfully found User"];
   } else {
-    return [false, userData, "User not found"];
+    return [false, {}, "User not found"];
   }
 };
 
 const findUserById = async (id) => {
   const [status, data] = await handlePromise(User.findById(id).lean());
-  const { password, ...userData } = data;
   if (status) {
+    const { password, ...userData } = data;
     return [status, userData, "Successfully found User"];
   } else {
     return [status, userData, "User not found"];
@@ -68,27 +69,30 @@ const findUserById = async (id) => {
 };
 
 const updateSchedule = async () => {
-  const [status, users] = await handlePromise(User.find({ role: "User" }));
-  const updatedShiftsUser = generateShifts(users);
-  console.log(updatedShiftsUser);
-  let updateStatus = true;
-  updatedShiftsUser.forEach(async (user) => {
-    try {
-      User.findByIdAndUpdate(user._id, { shifts: user.shifts }, (err, docs) => {
-        if (err) {
-          updateStatus = false;
-          throw new Error(`failed to add user shifts, userId:${user._id}`);
-        }
-      });
-    } catch (error) {
-      console.log("This is the error", error);
+  try {
+    const [status, users] = await handlePromise(User.find({ role: "User" }));
+    const updatedShiftsUser = await generateShifts(users);
+    let updateStatus = true;
+    updatedShiftsUser.forEach(async (user) => {
+      try {
+        User.findByIdAndUpdate(user._id, { shifts: user.shifts }, (err, docs) => {
+          if (err) {
+            updateStatus = false;
+            throw new Error(`failed to add user shifts, userId:${user._id}`);
+          }
+        });
+      } catch (error) {
+        console.log("This is the error", error);
+      }
+    });
+  
+    if (updateStatus) {
+      return [updateStatus, "Successfully created all user shifts"];
+    } else {
+      return [updateStatus, "Failed to create shifts"];
     }
-  });
-
-  if (updateStatus) {
-    return [updateStatus, "Successfully created all user shifts"];
-  } else {
-    return [updateStatus, "Failed to create shifts"];
+  } catch (error) {
+    console.log(error);
   }
 };
 module.exports = {
